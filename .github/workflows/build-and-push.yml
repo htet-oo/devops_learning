@@ -25,5 +25,5 @@ jobs:
                     ./springboot-app-with-docker-compose
 
             - name: Push Docker Image
-                run: |
-                    docker push htetoowaiyan12/springboot-app-with-docker-compose:latest
+              run: |
+                docker push htetoowaiyan12/springboot-app-with-docker-compose:latest
