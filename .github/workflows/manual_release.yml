@@ -19,6 +19,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Check frontend files
+        run: |
+          pwd
+          ls -la github_manual_release/frontend/
+          cat github_manual_release/frontend/index.html
       
       - name: Show selected service
         run: echo "Selected service is ${{ inputs.service }}"
