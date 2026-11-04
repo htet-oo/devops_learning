@@ -1,0 +1,63 @@
+name: Manual Docker Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Which service do you want to build?'
+        required: true
+        type: choice
+        options:
+          - Backend
+          - Frontend
+          - Integration
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Show selected service
+        run: echo "Selected service is ${{ inputs.service }}"
+
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Backend Build
+        if: ${{ inputs.service == 'Backend' || inputs.service == 'Integration' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./github_manual_release/backend
+          file: ./github_manual_release/backend/Dockerfile
+          outputs: type=docker,dest=/tmp/backend.tar
+
+      
+      - name: Frontend Build
+        if: ${{ inputs.service == 'Frontend' || inputs.service == 'Integration' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./github_manual_release/frontend
+          file: ./github_manual_release/frontend/Dockerfile
+          outputs: type=docker,dest=/tmp/frontend.tar
+
+      - name: Integration Build
+        if: ${{ inputs.service == 'Integration' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./github_manual_release/integration
+          file: ./github_manual_release/integration/Dockerfile
+          outputs: type=docker,dest=/tmp/integration.tar
+      
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.service }}-docker-images
+          path: /tmp/*.tar
+          retention-days: 7
+          if-no-files-found: error
+
+
